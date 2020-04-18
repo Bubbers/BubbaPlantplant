@@ -21,12 +21,10 @@ import com.bubbaplantplant.game.component.PositionComponent;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.MoveToTargetSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
-import com.bubbaplantplant.game.util.FrameRate;
 
 public class BubbaPlantplantApplication extends ApplicationAdapter {
 
     private Engine engine;
-    private FrameRate frameRate;
     private HudSystem hud;
 
     @Override
@@ -56,8 +54,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         hud = new HudSystem();
         engine.addSystem(hud);
 
-        frameRate = new FrameRate();
-
     }
 
     private ModelInstance initPlayerInstance() {
@@ -82,7 +78,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        frameRate.dispose();
+
     }
 
     @Override
@@ -93,13 +89,10 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         engine.update(Gdx.graphics.getDeltaTime());
-        frameRate.update();
-        frameRate.render();
     }
 
     @Override
     public void resize(int width, int height) {
-        frameRate.resize(width, height);
     }
 
     @Override
