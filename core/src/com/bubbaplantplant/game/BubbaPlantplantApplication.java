@@ -33,9 +33,9 @@ import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
-import com.bubbaplantplant.game.system.MoveToTargetSystem;
 import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
+import com.bubbaplantplant.game.util.HeapObjectRetainer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +60,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         btDefaultCollisionConfiguration collisionConfig = new btDefaultCollisionConfiguration();
         btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
         btDbvtBroadphase broadphase = new btDbvtBroadphase();
+        HeapObjectRetainer.addObjectsForever(collisionConfig, dispatcher, broadphase);
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
 
         debugDrawer = new DebugDrawer();
@@ -76,7 +77,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         //engine.addSystem(new WasdSystem());
         RenderSystem renderSystem = new RenderSystem(collisionWorld, debugDrawer);
         engine.addSystem(renderSystem);
-        engine.addSystem(new MoveToTargetSystem(renderSystem.getCamera(), floorDimensions));
 
         hud = new HudSystem();
         engine.addSystem(hud);
@@ -84,7 +84,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
         engine.addSystem(new PickUpOnCollisionSystem());
 
-        new CollisionListener(entities);
+        HeapObjectRetainer.addObjectForever(new CollisionListener(entities));
     }
 
     private Vector3 createFloorEntity() {
