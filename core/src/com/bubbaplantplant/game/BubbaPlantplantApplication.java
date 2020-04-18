@@ -154,8 +154,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         return flowerInstance;
     }
 
-
-
     private ModelInstance initFloorInstance() {
         ModelBuilder modelBuilder = new ModelBuilder();
         Model floor = modelBuilder.createBox(10f, 0.5f, 10f, new Material(new ColorAttribute(ColorAttribute.Diffuse, Color.DARK_GRAY)), VertexAttributes.Usage.Normal | VertexAttributes.Usage.Position);

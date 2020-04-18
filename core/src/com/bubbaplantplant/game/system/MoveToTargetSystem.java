@@ -55,7 +55,6 @@ public class MoveToTargetSystem extends EntitySystem {
             Vector3 rayTo = pickRay.direction.scl(50f).add(rayFrom);
 
             ClosestRayResultCallback callback = new ClosestRayResultCallback(rayFrom, rayTo);
-
             collisionWorld.rayTest(rayFrom, rayTo, callback);
 
             if (callback.hasHit()) {
