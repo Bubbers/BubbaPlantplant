@@ -10,8 +10,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
-import com.bubbaplantplant.game.BubbaPlantplantApplication;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 
@@ -23,9 +27,17 @@ public class MoveToTargetSystem extends EntitySystem {
     private Vector3 target = null;
     private static final float SPEED = 3f;
 
-    public MoveToTargetSystem(btCollisionWorld collisionWorld, Camera camera, Vector3 floorDimensions) {
+    public MoveToTargetSystem(Camera camera, Vector3 floorDimensions) {
         this.camera = camera;
-        this.collisionWorld = collisionWorld;
+
+        btDefaultCollisionConfiguration collisionConfig = new btDefaultCollisionConfiguration();
+        btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
+        btDbvtBroadphase broadphase = new btDbvtBroadphase();
+        collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
+
+        btCollisionObject floorCollisionObject = new btCollisionObject();
+        floorCollisionObject.setCollisionShape(new btBoxShape(floorDimensions));
+        collisionWorld.addCollisionObject(floorCollisionObject);
     }
 
     @Override
@@ -43,7 +55,6 @@ public class MoveToTargetSystem extends EntitySystem {
             Vector3 rayTo = pickRay.direction.scl(50f).add(rayFrom);
 
             ClosestRayResultCallback callback = new ClosestRayResultCallback(rayFrom, rayTo);
-            callback.setCollisionFilterGroup(BubbaPlantplantApplication.FLOOR_CONTACT_FLAG);
 
             collisionWorld.rayTest(rayFrom, rayTo, callback);
 

@@ -28,6 +28,7 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
+import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.MoveToTargetSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
@@ -48,8 +49,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     public void create() {
         Bullet.init();
 
-
-
         btDefaultCollisionConfiguration collisionConfig = new btDefaultCollisionConfiguration();
         btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
         btDbvtBroadphase broadphase = new btDbvtBroadphase();
@@ -61,24 +60,40 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
         collisionWorld.setDebugDrawer(debugDrawer);
 
-        ModelInstance floorInstance = initFloorInstance();
-        ModelInstance playerInstance = initPlayerInstance();
-        ModelInstance flowerInstance = initFlowerInstance();
-
         engine = new Engine();
 
-        Entity playerEntity = new Entity();
-        playerEntity.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
-        btCollisionObject playerCollisionObject = new btCollisionObject();
-        playerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 2.0f, 1.0f)));
-        playerCollisionObject.setCollisionFlags(playerCollisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
-        playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
-        playerCollisionObject.setUserValue(2); // TODO Better number here
-        collisionWorld.addCollisionObject(playerCollisionObject);
-        playerEntity.add(new PlayerComponent());
-        engine.addEntity(playerEntity);
+        createPlayerEntity();
+        createFlowerEntity();
+        Vector3 floorDimensions = createFloorEntity();
 
+        //engine.addSystem(new WasdSystem());
+        RenderSystem renderSystem = new RenderSystem(collisionWorld, debugDrawer);
+        engine.addSystem(renderSystem);
+        engine.addSystem(new MoveToTargetSystem(renderSystem.getCamera(), floorDimensions));
+
+        hud = new HudSystem();
+        engine.addSystem(hud);
+
+        engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
+    }
+
+    private Vector3 createFloorEntity() {
+        ModelInstance floorInstance = initFloorInstance();
+        Entity floorEntity = new Entity();
+        floorEntity.add(new ModelInstanceComponent(floorInstance));
+        btCollisionObject floorBox = new btCollisionObject();
+        Vector3 floorDimensions = new Vector3(5.0f, 0.25f, 5.0f);
+        floorBox.setCollisionShape(new btBoxShape(floorDimensions));
+        floorBox.setCollisionFlags(floorBox.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        floorBox.setUserValue(0);
+        floorBox.setContactCallbackFlag(FLOOR_CONTACT_FLAG);
+        collisionWorld.addCollisionObject(floorBox);
+        engine.addEntity(floorEntity);
+        return floorDimensions;
+    }
+
+    private void createFlowerEntity() {
+        ModelInstance flowerInstance = initFlowerInstance();
         Entity flowerEntity = new Entity();
         btCollisionObject flowerCollisionObject = new btCollisionObject();
         flowerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f)));
@@ -90,28 +105,23 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         collisionWorld.addCollisionObject(flowerCollisionObject);
         flowerEntity.add(new PlayerComponent());
         engine.addEntity(flowerEntity);
-
-        Entity floorEntity = new Entity();
-        floorEntity.add(new ModelInstanceComponent(floorInstance));
-        btCollisionObject floorBox = new btCollisionObject();
-        floorBox.setCollisionShape(new btBoxShape(new Vector3(5.0f, 0.25f, 5.0f)));
-        floorBox.setCollisionFlags(floorBox.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        floorBox.setUserValue(0);
-        floorBox.setContactCallbackFlag(FLOOR_CONTACT_FLAG);
-
-        collisionWorld.addCollisionObject(floorBox);
-
-        engine.addEntity(floorEntity);
-
-        //engine.addSystem(new WasdSystem());
-        RenderSystem renderSystem = new RenderSystem(collisionWorld, debugDrawer);
-        engine.addSystem(renderSystem);
-        engine.addSystem(new MoveToTargetSystem(collisionWorld, renderSystem.getCamera(), new Vector3(10f, 0.5f, 10f)));
-
-        hud = new HudSystem();
-        engine.addSystem(hud);
-
     }
+
+    private void createPlayerEntity() {
+        ModelInstance playerInstance = initPlayerInstance();
+        Entity playerEntity = new Entity();
+        playerEntity.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
+        btCollisionObject playerCollisionObject = new btCollisionObject();
+        playerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 2.0f, 1.0f)));
+        playerCollisionObject.setCollisionFlags(playerCollisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
+        playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
+        playerCollisionObject.setUserValue(2); // TODO Better number here
+        collisionWorld.addCollisionObject(playerCollisionObject);
+        playerEntity.add(new PlayerComponent());
+        engine.addEntity(playerEntity);
+    }
+
 
     private ModelInstance initPlayerInstance() {
         // Model loader needs a binary json reader to decode
