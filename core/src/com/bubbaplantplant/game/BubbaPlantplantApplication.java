@@ -88,11 +88,12 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     }
 
     private Vector3 createFloorEntity() {
-        ModelInstance floorInstance = initFloorInstance();
+        ModelInstance floorInstance = initInstance("ground.g3db");
+        floorInstance.transform.setTranslation(0, 0, -15);
         Entity floorEntity = new Entity();
         floorEntity.add(new ModelInstanceComponent(floorInstance));
         btCollisionObject floorBox = new btCollisionObject();
-        Vector3 floorDimensions = new Vector3(5.0f, 0.25f, 5.0f);
+        Vector3 floorDimensions = new Vector3(50.0f, 0.05f, 50.0f);
         floorBox.setCollisionShape(new btBoxShape(floorDimensions));
         floorBox.setCollisionFlags(floorBox.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         floorBox.setContactCallbackFlag(FLOOR_CONTACT_FLAG);

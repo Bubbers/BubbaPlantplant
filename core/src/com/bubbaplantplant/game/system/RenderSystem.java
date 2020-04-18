@@ -41,7 +41,7 @@ public class RenderSystem extends EntitySystem {
                 Gdx.graphics.getHeight());
 
         // Move the camera 3 units back along the z-axis and look at the origin
-        camera.position.set(0f, 5f, 7f);
+        camera.position.set(0f, 7f, 7f);
         camera.lookAt(0f, 0f, 0f);
 
         // Near and Far (plane) repesent the minimum and maximum ranges of the camera in, um, units
@@ -56,8 +56,8 @@ public class RenderSystem extends EntitySystem {
         // Finally we want some light, or we wont see our color.  The environment gets passed in during
         // the rendering process.  Create one, then create an Ambient ( non-positioned, non-directional ) light.
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1.0f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1.0f));
+        environment.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
     }
 
     @Override
