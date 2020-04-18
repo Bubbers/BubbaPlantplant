@@ -28,10 +28,13 @@ import com.badlogic.gdx.utils.UBJsonReader;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
-import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.HudSystem;
+import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.MoveToTargetSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BubbaPlantplantApplication extends ApplicationAdapter {
 
@@ -42,6 +45,8 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     private HudSystem hud;
     private btCollisionWorld collisionWorld;
     private CollisionListener collisionListener;
+
+    private List<Entity> entities = new ArrayList<>();
 
     private DebugDrawer debugDrawer;
 
@@ -85,10 +90,12 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         Vector3 floorDimensions = new Vector3(5.0f, 0.25f, 5.0f);
         floorBox.setCollisionShape(new btBoxShape(floorDimensions));
         floorBox.setCollisionFlags(floorBox.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        floorBox.setUserValue(0);
         floorBox.setContactCallbackFlag(FLOOR_CONTACT_FLAG);
+        floorBox.setUserValue(entities.size());
         collisionWorld.addCollisionObject(floorBox);
         engine.addEntity(floorEntity);
+        entities.add(floorEntity);
+
         return floorDimensions;
     }
 
@@ -101,9 +108,10 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         flowerCollisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
         flowerEntity.add(new PositionComponent(new Vector3(1.0f, 0.0f, 1.0f)));
         flowerEntity.add(new ModelInstanceComponent(flowerInstance).withCollisionObject(flowerCollisionObject));
-        flowerCollisionObject.setUserValue(1); // TODO Better number here
+        flowerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(flowerCollisionObject);
         flowerEntity.add(new PlayerComponent());
+        entities.add(flowerEntity);
         engine.addEntity(flowerEntity);
     }
 
@@ -116,9 +124,10 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         playerCollisionObject.setCollisionFlags(playerCollisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
         playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
-        playerCollisionObject.setUserValue(2); // TODO Better number here
+        playerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(playerCollisionObject);
         playerEntity.add(new PlayerComponent());
+        entities.add(playerEntity);
         engine.addEntity(playerEntity);
     }
 
