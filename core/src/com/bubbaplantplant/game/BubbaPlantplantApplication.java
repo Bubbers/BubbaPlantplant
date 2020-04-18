@@ -26,8 +26,8 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.UBJsonReader;
-import com.bubbaplantplant.game.component.ModelInstanceComponent;
 import com.bubbaplantplant.game.component.CollisionComponent;
+import com.bubbaplantplant.game.component.ModelInstanceComponent;
 import com.bubbaplantplant.game.component.PickUpableComponent;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
@@ -36,6 +36,7 @@ import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
 import com.bubbaplantplant.game.util.HeapObjectRetainer;
+import com.bubbaplantplant.game.system.WasdSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         createBucketEntity();
         Vector3 floorDimensions = createFloorEntity();
 
-        //engine.addSystem(new WasdSystem());
+        engine.addSystem(new WasdSystem());
         RenderSystem renderSystem = new RenderSystem(collisionWorld, debugDrawer);
         engine.addSystem(renderSystem);
 
@@ -82,7 +83,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         engine.addSystem(hud);
 
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
-        engine.addSystem(new PickUpOnCollisionSystem());
+        engine.addSystem(new PickUpOnCollisionSystem(renderSystem.getCamera(), collisionWorld, entities));
 
         HeapObjectRetainer.addObjectForever(new CollisionListener(entities));
     }
