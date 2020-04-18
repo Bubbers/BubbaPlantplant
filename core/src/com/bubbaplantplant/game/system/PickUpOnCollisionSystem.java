@@ -49,17 +49,14 @@ public class PickUpOnCollisionSystem extends EntitySystem {
             collisionWorld.rayTest(rayFrom, rayTo, callback);
 
             if (callback.hasHit()) {
-                System.out.println("UserValue clicked " + callback.getCollisionObject().getUserValue());
                 Entity entityClicked = entities.get(callback.getCollisionObject().getUserValue());
 
                 if (entityClicked.getComponent(PickUpableComponent.class) != null && collidingWith.contains(entityClicked)) {
-                    System.out.println("Picked Up!!");
                     entityHeld = entityClicked;
                 }
 
             }
         } else if (entityHeld != null && Gdx.input.isKeyPressed(Input.Keys.E)) {
-            System.out.println("Dropped item");
             Vector3 positionToMoveTo = playerPosition.getPosition();
             entityHeld.getComponent(PositionComponent.class).getPosition().set(positionToMoveTo.x, positionToMoveTo.y, positionToMoveTo.z);
             entityHeld = null;
