@@ -64,7 +64,6 @@ public class PickUpOnCollisionSystem extends EntitySystem {
             RotationComponent playerRotationComponent = playerEntity.getComponent(RotationComponent.class);
             PositionComponent entityHeldComponent = entityHeld.getComponent(PositionComponent.class);
             entityHeldComponent.getPosition().set(0.0f, 1.0f, 1.0f).mul(playerRotationComponent.getQuaternion()).add(playerPosition.getPosition());
-            System.out.println(entityHeldComponent.getPosition());
         }
     }
 }
