@@ -7,33 +7,37 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 
 public class MoveToTargetSystem extends EntitySystem {
 
+    private final btCollisionWorld collisionWorld;
     private Entity player;
     private Camera camera;
-    private btCollisionShape floorShape;
-    private btCollisionWorld collisionWorld;
     private Vector3 target = null;
     private static final float SPEED = 3f;
 
     public MoveToTargetSystem(Camera camera, Vector3 floorDimensions) {
         this.camera = camera;
-        floorShape = new btBoxShape(floorDimensions.scl(0.5f));
-        btCollisionObject floorBox = new btCollisionObject();
-        floorBox.setCollisionShape(floorShape);
-        floorBox.setWorldTransform(new Matrix4().setTranslation(0,0,0));
+
         btDefaultCollisionConfiguration collisionConfig = new btDefaultCollisionConfiguration();
         btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
         btDbvtBroadphase broadphase = new btDbvtBroadphase();
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
-        collisionWorld.addCollisionObject(floorBox);
+
+        btCollisionObject floorCollisionObject = new btCollisionObject();
+        floorCollisionObject.setCollisionShape(new btBoxShape(floorDimensions));
+        collisionWorld.addCollisionObject(floorCollisionObject);
     }
 
     @Override

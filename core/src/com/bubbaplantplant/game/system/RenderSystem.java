@@ -11,16 +11,25 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
-import com.bubbaplantplant.game.component.PositionComponent;
 
 import java.util.ArrayList;
 
 public class RenderSystem extends EntitySystem {
 
+    private final btCollisionWorld collisionWorld;
+    private DebugDrawer debugDrawer;
     private PerspectiveCamera camera;
     private ModelBatch modelBatch;
     private Environment environment;
+
+    public RenderSystem(btCollisionWorld collisionWorld, DebugDrawer debugDrawer) {
+        super(1000);
+        this.collisionWorld = collisionWorld;
+        this.debugDrawer = debugDrawer;
+    }
 
     @Override
     public void addedToEngine(Engine engine) {
@@ -51,19 +60,20 @@ public class RenderSystem extends EntitySystem {
 
     @Override
     public void update(float deltaTime) {
+
         ImmutableArray<Entity> entities = getEngine().getEntitiesFor(Family.one(ModelInstanceComponent.class).get());
         ArrayList<ModelInstance> models = new ArrayList<>();
         for (Entity entity: entities) {
-            PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
-            ModelInstance modelInstance = entity.getComponent(ModelInstanceComponent.class).getModelInstance();
-            if (positionComponent != null) {
-                modelInstance.transform.setTranslation(positionComponent.getPosition());
-            }
+            ModelInstanceComponent component = entity.getComponent(ModelInstanceComponent.class);
+            ModelInstance modelInstance = component.getModelInstance();
             models.add(modelInstance);
         }
         modelBatch.begin(camera);
         modelBatch.render(models, environment);
         modelBatch.end();
+//        debugDrawer.begin(camera);
+//        collisionWorld.debugDrawWorld();
+//        debugDrawer.end();
     }
 
     public PerspectiveCamera getCamera() {
