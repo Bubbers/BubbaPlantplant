@@ -97,7 +97,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     }
 
     private void createFlowerEntity() {
-        ModelInstance flowerInstance = initFlowerInstance();
+        ModelInstance flowerInstance = initInstance("box.g3db");
         Entity flowerEntity = new Entity();
         btCollisionObject flowerCollisionObject = new btCollisionObject();
         flowerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f)));
@@ -113,7 +113,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     }
 
     private void createPlayerEntity() {
-        ModelInstance playerInstance = initPlayerInstance();
+        ModelInstance playerInstance = initInstance("bubba.g3db");
         Entity playerEntity = new Entity();
         playerEntity.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
         btCollisionObject playerCollisionObject = new btCollisionObject();
@@ -131,33 +131,11 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         new CollisionListener(playerComponent);
     }
 
-
-    private ModelInstance initPlayerInstance() {
-        // Model loader needs a binary json reader to decode
-        UBJsonReader jsonReader = new UBJsonReader();
-        // Create a model loader passing in our json reader
-        G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        // Now load the model by name
-        // Note, the model (g3db file ) and textures need to be added to the assets folder of the Android proj
-        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("bubba.g3db", Files.FileType.Internal));
-        // Now create an instance.  Instance holds the positioning data, etc of an instance of your model
-        ModelInstance playerInstance = new ModelInstance(model);
-        //playerInstance.transform.setToScaling(0.25f, 0.25f, 0.25f);
-        return playerInstance;
-    }
-
-    private ModelInstance initFlowerInstance() {
+    private ModelInstance initInstance(String modelFileName) {
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("plant.g3db", Files.FileType.Internal));
-        ModelInstance flowerInstance = new ModelInstance(model);
-        return flowerInstance;
-    }
-
-    private ModelInstance initFloorInstance() {
-        ModelBuilder modelBuilder = new ModelBuilder();
-        Model floor = modelBuilder.createBox(10f, 0.5f, 10f, new Material(new ColorAttribute(ColorAttribute.Diffuse, Color.DARK_GRAY)), VertexAttributes.Usage.Normal | VertexAttributes.Usage.Position);
-        return new ModelInstance(floor);
+        Model model = modelLoader.loadModel(Gdx.files.getFileHandle(modelFileName, Files.FileType.Internal));
+        return new ModelInstance(model);
     }
 
     @Override
