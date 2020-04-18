@@ -26,11 +26,14 @@ import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
+import com.bubbaplantplant.game.component.CollisionComponent;
+import com.bubbaplantplant.game.component.PickUpableComponent;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.MoveToTargetSystem;
+import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
 
 import java.util.ArrayList;
@@ -66,6 +69,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
         createPlayerEntity();
         createFlowerEntity();
+        createBucketEntity();
         Vector3 floorDimensions = createFloorEntity();
 
         //engine.addSystem(new WasdSystem());
@@ -77,6 +81,9 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         engine.addSystem(hud);
 
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
+        engine.addSystem(new PickUpOnCollisionSystem());
+
+        new CollisionListener(entities);
     }
 
     private Vector3 createFloorEntity() {
@@ -107,9 +114,24 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         flowerEntity.add(new ModelInstanceComponent(flowerInstance).withCollisionObject(flowerCollisionObject));
         flowerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(flowerCollisionObject);
-        flowerEntity.add(new PlayerComponent());
         entities.add(flowerEntity);
         engine.addEntity(flowerEntity);
+    }
+
+    private void createBucketEntity() {
+        ModelInstance instance = initInstance("bucket.g3db");
+        Entity entity = new Entity();
+        btCollisionObject collisionObject = new btCollisionObject();
+        collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 0.25f, 0.25f)));
+        collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
+        entity.add(new PositionComponent(new Vector3(-2.0f, 0.0f, -2.0f)));
+        entity.add(new ModelInstanceComponent(instance).withCollisionObject(collisionObject));
+        entity.add(new PickUpableComponent());
+        collisionObject.setUserValue(entities.size());
+        collisionWorld.addCollisionObject(collisionObject);
+        entities.add(entity);
+        engine.addEntity(entity);
     }
 
     private void createPlayerEntity() {
@@ -121,14 +143,13 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         playerCollisionObject.setCollisionFlags(playerCollisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
         playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
+        playerEntity.add(new CollisionComponent());
         playerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(playerCollisionObject);
         PlayerComponent playerComponent = new PlayerComponent();
         playerEntity.add(playerComponent);
         entities.add(playerEntity);
         engine.addEntity(playerEntity);
-
-        new CollisionListener(playerComponent);
     }
 
     private ModelInstance initInstance(String modelFileName) {
@@ -137,6 +158,13 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         Model model = modelLoader.loadModel(Gdx.files.getFileHandle(modelFileName, Files.FileType.Internal));
         return new ModelInstance(model);
     }
+
+    private ModelInstance initFloorInstance() {
+        ModelBuilder modelBuilder = new ModelBuilder();
+        Model floor = modelBuilder.createBox(10f, 0.5f, 10f, new Material(new ColorAttribute(ColorAttribute.Diffuse, Color.DARK_GRAY)), VertexAttributes.Usage.Normal | VertexAttributes.Usage.Position);
+        return new ModelInstance(floor);
+    }
+
 
     @Override
     public void dispose() {
