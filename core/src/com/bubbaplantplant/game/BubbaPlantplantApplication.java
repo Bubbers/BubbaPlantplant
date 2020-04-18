@@ -105,7 +105,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     }
 
     private void createFlowerEntity() {
-        ModelInstance flowerInstance = initInstance("box.g3db");
+        ModelInstance flowerInstance = initInstance("plant.g3db");
         Entity flowerEntity = new Entity();
         btCollisionObject flowerCollisionObject = new btCollisionObject();
         flowerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f)));
