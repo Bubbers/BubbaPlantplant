@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
@@ -69,6 +70,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         createPlayerEntity();
         createFlowerEntity();
         createBucketEntity();
+        createTapEntity();
         Vector3 floorDimensions = createFloorEntity();
 
         engine.addSystem(new WasdSystem());
@@ -115,6 +117,26 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         collisionWorld.addCollisionObject(flowerCollisionObject);
         entities.add(flowerEntity);
         engine.addEntity(flowerEntity);
+    }
+
+    private void createTapEntity() {
+        ModelInstance instance = initInstance("tap.g3db");
+        Entity entity = new Entity();
+        btCollisionObject collisionObject = new btCollisionObject();
+        collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 0.25f, 0.25f)));
+        collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
+        Vector3 position = new Vector3(-2.5f, 0.0f, 3.0f);
+        entity.add(new PositionComponent(position));
+        entity.add(new ModelInstanceComponent(instance).withCollisionObject(collisionObject));
+        RotationComponent rotationComponent = new RotationComponent();
+        rotationComponent.setQuaternion(new Quaternion(new Vector3(0.0f, 1.0f, 0.0f), 90));
+        entity.add(rotationComponent);
+        collisionObject.setUserValue(entities.size());
+        collisionObject.setWorldTransform(new Matrix4().setTranslation(position));
+        collisionWorld.addCollisionObject(collisionObject);
+        entities.add(entity);
+        engine.addEntity(entity);
     }
 
     private void createBucketEntity() {
