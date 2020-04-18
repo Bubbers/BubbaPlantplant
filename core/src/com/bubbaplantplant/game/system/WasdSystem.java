@@ -12,9 +12,9 @@ import com.bubbaplantplant.game.component.RotationComponent;
 
 public class WasdSystem extends EntitySystem {
 
-
     public static final Vector3 UP = new Vector3(0, 1, 0);
     private static final float SPEED = 5f;
+    private float prevAngle = 90;
 
     @Override
     public void update(float deltaTime) {
@@ -36,6 +36,10 @@ public class WasdSystem extends EntitySystem {
             delta.x = 1;
         }
         float angle = new Vector2(delta.x, delta.z).angle();
+        if (delta.isZero()) {
+            angle = prevAngle;
+        }
+        prevAngle = angle;
         rotComponent.getQuaternion().set(UP, 360 - angle + 90);
 
         posComponent.getPosition().add(delta.nor().scl(SPEED*deltaTime));
