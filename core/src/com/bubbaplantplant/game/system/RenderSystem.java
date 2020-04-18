@@ -40,7 +40,7 @@ public class RenderSystem extends EntitySystem {
                 Gdx.graphics.getHeight());
 
         // Move the camera 3 units back along the z-axis and look at the origin
-        camera.position.set(0f, 2f, 3f);
+        camera.position.set(0f, 5f, 7f);
         camera.lookAt(0f, 0f, 0f);
 
         // Near and Far (plane) repesent the minimum and maximum ranges of the camera in, um, units

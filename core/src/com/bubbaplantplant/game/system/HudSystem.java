@@ -31,14 +31,9 @@ public class HudSystem extends EntitySystem {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        VerticalGroup root = new VerticalGroup();
-        root.setFillParent(true);
-        root.setDebug(true);
-        stage.addActor(root);
-
         table = new Table();
         table.setFillParent(true);
-        table.setDebug(true);
+        table.setDebug(false);
         stage.addActor(table);
 
         if(SHOW_FPS) {
