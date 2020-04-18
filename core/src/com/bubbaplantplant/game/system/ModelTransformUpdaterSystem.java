@@ -32,7 +32,6 @@ public class ModelTransformUpdaterSystem extends EntitySystem {
             ModelInstance modelInstance = component.getModelInstance();
             btCollisionObject collisionObject = component.getCollisionObject();
             if (rotationComponent != null) {
-                System.out.println("rot " + rotationComponent.getQuaternion().getAngle());
                 modelInstance.transform.set(rotationComponent.getQuaternion());
             }
             if (positionComponent != null) {

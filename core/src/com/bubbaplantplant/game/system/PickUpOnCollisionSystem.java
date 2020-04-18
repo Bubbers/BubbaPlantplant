@@ -6,16 +6,14 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.physics.bullet.collision.ClosestNotMeRayResultCallback;
 import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
-import com.bubbaplantplant.game.component.CollisionComponent;
-import com.bubbaplantplant.game.component.ModelInstanceComponent;
-import com.bubbaplantplant.game.component.PickUpableComponent;
-import com.bubbaplantplant.game.component.PlayerComponent;
-import com.bubbaplantplant.game.component.PositionComponent;
+import com.bubbaplantplant.game.component.*;
 
 import java.util.List;
 
@@ -63,9 +61,10 @@ public class PickUpOnCollisionSystem extends EntitySystem {
         }
 
         if (entityHeld != null) {
+            RotationComponent playerRotationComponent = playerEntity.getComponent(RotationComponent.class);
             PositionComponent entityHeldComponent = entityHeld.getComponent(PositionComponent.class);
-            Vector3 positionToMoveTo = playerPosition.getPosition();
-            entityHeldComponent.getPosition().set(positionToMoveTo.x, positionToMoveTo.y, positionToMoveTo.z).add(0.0f, 1.0f, 1.0f);
+            entityHeldComponent.getPosition().set(0.0f, 1.0f, 1.0f).mul(playerRotationComponent.getQuaternion()).add(playerPosition.getPosition());
+            System.out.println(entityHeldComponent.getPosition());
         }
     }
 }
