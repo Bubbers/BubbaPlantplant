@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionWorld;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
@@ -56,6 +57,7 @@ public class RenderSystem extends EntitySystem {
         // the rendering process.  Create one, then create an Ambient ( non-positioned, non-directional ) light.
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.8f, 0.8f, 0.8f, 1.0f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
     }
 
     @Override

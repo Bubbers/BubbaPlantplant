@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
@@ -26,11 +27,14 @@ import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.bubbaplantplant.game.component.ModelInstanceComponent;
+import com.bubbaplantplant.game.component.CollisionComponent;
+import com.bubbaplantplant.game.component.PickUpableComponent;
 import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.MoveToTargetSystem;
+import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
 import com.bubbaplantplant.game.system.RenderSystem;
 
 import java.util.ArrayList;
@@ -66,6 +70,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
         createPlayerEntity();
         createFlowerEntity();
+        createBucketEntity();
         Vector3 floorDimensions = createFloorEntity();
 
         //engine.addSystem(new WasdSystem());
@@ -77,6 +82,9 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         engine.addSystem(hud);
 
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
+        engine.addSystem(new PickUpOnCollisionSystem());
+
+        new CollisionListener(entities);
     }
 
     private Vector3 createFloorEntity() {
@@ -97,7 +105,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     }
 
     private void createFlowerEntity() {
-        ModelInstance flowerInstance = initFlowerInstance();
+        ModelInstance flowerInstance = initInstance("plant.g3db");
         Entity flowerEntity = new Entity();
         btCollisionObject flowerCollisionObject = new btCollisionObject();
         flowerCollisionObject.setCollisionShape(new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f)));
@@ -107,13 +115,30 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         flowerEntity.add(new ModelInstanceComponent(flowerInstance).withCollisionObject(flowerCollisionObject));
         flowerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(flowerCollisionObject);
-        flowerEntity.add(new PlayerComponent());
         entities.add(flowerEntity);
         engine.addEntity(flowerEntity);
     }
 
+    private void createBucketEntity() {
+        ModelInstance instance = initInstance("bucket.g3db");
+        Entity entity = new Entity();
+        btCollisionObject collisionObject = new btCollisionObject();
+        collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 0.25f, 0.25f)));
+        collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
+        Vector3 position = new Vector3(-2.0f, 0.0f, -2.0f);
+        entity.add(new PositionComponent(position));
+        entity.add(new ModelInstanceComponent(instance).withCollisionObject(collisionObject));
+        entity.add(new PickUpableComponent());
+        collisionObject.setUserValue(entities.size());
+        collisionObject.setWorldTransform(new Matrix4().setTranslation(position));
+        collisionWorld.addCollisionObject(collisionObject);
+        entities.add(entity);
+        engine.addEntity(entity);
+    }
+
     private void createPlayerEntity() {
-        ModelInstance playerInstance = initPlayerInstance();
+        ModelInstance playerInstance = initInstance("bubba.g3db");
         Entity playerEntity = new Entity();
         playerEntity.add(new PositionComponent(new Vector3(0.0f, 0.0f, 0.0f)));
         btCollisionObject playerCollisionObject = new btCollisionObject();
@@ -121,37 +146,20 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         playerCollisionObject.setCollisionFlags(playerCollisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
         playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
+        playerEntity.add(new CollisionComponent());
         playerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(playerCollisionObject);
         PlayerComponent playerComponent = new PlayerComponent();
         playerEntity.add(playerComponent);
         entities.add(playerEntity);
         engine.addEntity(playerEntity);
-
-        new CollisionListener(playerComponent);
     }
 
-
-    private ModelInstance initPlayerInstance() {
-        // Model loader needs a binary json reader to decode
-        UBJsonReader jsonReader = new UBJsonReader();
-        // Create a model loader passing in our json reader
-        G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        // Now load the model by name
-        // Note, the model (g3db file ) and textures need to be added to the assets folder of the Android proj
-        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("bubba.g3db", Files.FileType.Internal));
-        // Now create an instance.  Instance holds the positioning data, etc of an instance of your model
-        ModelInstance playerInstance = new ModelInstance(model);
-        //playerInstance.transform.setToScaling(0.25f, 0.25f, 0.25f);
-        return playerInstance;
-    }
-
-    private ModelInstance initFlowerInstance() {
+    private ModelInstance initInstance(String modelFileName) {
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("plant.g3db", Files.FileType.Internal));
-        ModelInstance flowerInstance = new ModelInstance(model);
-        return flowerInstance;
+        Model model = modelLoader.loadModel(Gdx.files.getFileHandle(modelFileName, Files.FileType.Internal));
+        return new ModelInstance(model);
     }
 
     private ModelInstance initFloorInstance() {
@@ -159,6 +167,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         Model floor = modelBuilder.createBox(10f, 0.5f, 10f, new Material(new ColorAttribute(ColorAttribute.Diffuse, Color.DARK_GRAY)), VertexAttributes.Usage.Normal | VertexAttributes.Usage.Position);
         return new ModelInstance(floor);
     }
+
 
     @Override
     public void dispose() {
