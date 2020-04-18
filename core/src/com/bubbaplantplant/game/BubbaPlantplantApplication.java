@@ -26,11 +26,7 @@ import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.UBJsonReader;
-import com.bubbaplantplant.game.component.CollisionComponent;
-import com.bubbaplantplant.game.component.ModelInstanceComponent;
-import com.bubbaplantplant.game.component.PickUpableComponent;
-import com.bubbaplantplant.game.component.PlayerComponent;
-import com.bubbaplantplant.game.component.PositionComponent;
+import com.bubbaplantplant.game.component.*;
 import com.bubbaplantplant.game.system.HudSystem;
 import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
 import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
@@ -84,6 +80,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
         engine.addSystem(new PickUpOnCollisionSystem(renderSystem.getCamera(), collisionWorld, entities));
+        engine.addSystem(new WasdSystem());
 
         HeapObjectRetainer.addObjectForever(new CollisionListener(entities));
     }
@@ -148,6 +145,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         playerCollisionObject.setContactCallbackFlag(PLAYER_CONTACT_FLAG);
         playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
         playerEntity.add(new CollisionComponent());
+        playerEntity.add(new RotationComponent());
         playerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(playerCollisionObject);
         PlayerComponent playerComponent = new PlayerComponent();
