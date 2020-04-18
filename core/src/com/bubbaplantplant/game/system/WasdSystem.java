@@ -4,20 +4,16 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
+import com.bubbaplantplant.game.component.PlayerComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 
 public class WasdSystem extends EntitySystem {
 
-    private final Entity player;
     private static final float SPEED = 5f;
-
-    public WasdSystem(Entity player) {
-        this.player = player;
-    }
 
     @Override
     public void update(float deltaTime) {
-        PositionComponent posComponent = player.getComponent(PositionComponent.class);
+        PositionComponent posComponent = getEngine().getEntitiesFor(Family.all(PlayerComponent.class).get()).first().getComponent(PositionComponent.class);
 
         Vector3 delta = new Vector3();
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -32,7 +28,6 @@ public class WasdSystem extends EntitySystem {
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             delta.x = 1;
         }
-        System.out.println("hello: " + delta);
 
         posComponent.getPosition().add(delta.nor().scl(SPEED*deltaTime));
     }
