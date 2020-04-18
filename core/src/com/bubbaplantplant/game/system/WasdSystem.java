@@ -11,9 +11,6 @@ public class WasdSystem extends EntitySystem {
 
     private static final float SPEED = 5f;
 
-    public WasdSystem() {
-    }
-
     @Override
     public void update(float deltaTime) {
         PositionComponent posComponent = getEngine().getEntitiesFor(Family.all(PlayerComponent.class).get()).first().getComponent(PositionComponent.class);

@@ -54,8 +54,8 @@ public class PickUpOnCollisionSystem extends EntitySystem {
                 if (entityClicked.getComponent(PickUpableComponent.class) != null && collidingWith.contains(entityClicked)) {
                     entityHeld = entityClicked;
                 }
-
             }
+            callback.dispose();
         } else if (entityHeld != null && Gdx.input.isKeyPressed(Input.Keys.E)) {
             Vector3 positionToMoveTo = playerPosition.getPosition();
             entityHeld.getComponent(PositionComponent.class).getPosition().set(positionToMoveTo.x, positionToMoveTo.y, positionToMoveTo.z);
