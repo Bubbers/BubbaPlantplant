@@ -149,7 +149,7 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     private ModelInstance initFlowerInstance() {
         UBJsonReader jsonReader = new UBJsonReader();
         G3dModelLoader modelLoader = new G3dModelLoader(jsonReader);
-        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("box.g3db", Files.FileType.Internal));
+        Model model = modelLoader.loadModel(Gdx.files.getFileHandle("plant.g3db", Files.FileType.Internal));
         ModelInstance flowerInstance = new ModelInstance(model);
         return flowerInstance;
     }
