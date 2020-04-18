@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector3;
-import com.bubbaplantplant.game.component.ModelInstanceComponent;
 import com.bubbaplantplant.game.component.PositionComponent;
 
 public class WasdSystem extends EntitySystem {
