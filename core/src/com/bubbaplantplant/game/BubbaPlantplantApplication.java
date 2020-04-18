@@ -44,7 +44,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
     private Engine engine;
     private HudSystem hud;
     private btCollisionWorld collisionWorld;
-    private CollisionListener collisionListener;
 
     private List<Entity> entities = new ArrayList<>();
 
@@ -58,8 +57,6 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfig);
         btDbvtBroadphase broadphase = new btDbvtBroadphase();
         collisionWorld = new btCollisionWorld(dispatcher, broadphase, collisionConfig);
-        this.collisionListener = new CollisionListener();
-        collisionListener.enable();
 
         debugDrawer = new DebugDrawer();
         debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
@@ -126,9 +123,12 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         playerEntity.add(new ModelInstanceComponent(playerInstance).withCollisionObject(playerCollisionObject));
         playerCollisionObject.setUserValue(entities.size());
         collisionWorld.addCollisionObject(playerCollisionObject);
-        playerEntity.add(new PlayerComponent());
+        PlayerComponent playerComponent = new PlayerComponent();
+        playerEntity.add(playerComponent);
         entities.add(playerEntity);
         engine.addEntity(playerEntity);
+
+        new CollisionListener(playerComponent);
     }
 
 
