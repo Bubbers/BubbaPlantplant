@@ -57,7 +57,7 @@ public class RenderSystem extends EntitySystem {
         // the rendering process.  Create one, then create an Ambient ( non-positioned, non-directional ) light.
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1.0f));
-        environment.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
     }
 
     @Override
