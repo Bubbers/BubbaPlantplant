@@ -28,12 +28,8 @@ import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.utils.UBJsonReader;
 import com.bubbaplantplant.game.component.*;
-import com.bubbaplantplant.game.system.HudSystem;
-import com.bubbaplantplant.game.system.ModelTransformUpdaterSystem;
-import com.bubbaplantplant.game.system.PickUpOnCollisionSystem;
-import com.bubbaplantplant.game.system.RenderSystem;
+import com.bubbaplantplant.game.system.*;
 import com.bubbaplantplant.game.util.HeapObjectRetainer;
-import com.bubbaplantplant.game.system.WasdSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +38,9 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
     public static final int PLAYER_CONTACT_FLAG = 2;
     public static final int FLOOR_CONTACT_FLAG = 8;
+    public static final int BUCKET_EMPTY_MODEL = 1;
+    public static final int BUCKET_FILLED_MODEL = 2;
+    public static final int WATER_TAP_CONTACT_FLAG = 4;
 
     private Engine engine;
     private HudSystem hud;
@@ -83,6 +82,8 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         engine.addSystem(new ModelTransformUpdaterSystem(collisionWorld));
         engine.addSystem(new PickUpOnCollisionSystem(renderSystem.getCamera(), collisionWorld, entities));
         engine.addSystem(new WasdSystem());
+        engine.addSystem(new MultiModelSystem());
+        engine.addSystem(new WaterFillSystem());
 
         HeapObjectRetainer.addObjectForever(new CollisionListener(entities));
     }
@@ -124,12 +125,13 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
         ModelInstance instance = initInstance("tap.g3db");
         Entity entity = new Entity();
         btCollisionObject collisionObject = new btCollisionObject();
-        collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 0.25f, 0.25f)));
+        collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 1.0f, 0.5f)));
         collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
+        collisionObject.setContactCallbackFlag(WATER_TAP_CONTACT_FLAG);
         Vector3 position = new Vector3(-2.5f, 0.0f, 3.0f);
         entity.add(new PositionComponent(position));
         entity.add(new ModelInstanceComponent(instance).withCollisionObject(collisionObject));
+        entity.add(new TapComponent());
         RotationComponent rotationComponent = new RotationComponent();
         rotationComponent.setQuaternion(new Quaternion(new Vector3(0.0f, 1.0f, 0.0f), 90));
         entity.add(rotationComponent);
@@ -142,15 +144,19 @@ public class BubbaPlantplantApplication extends ApplicationAdapter {
 
     private void createBucketEntity() {
         ModelInstance instance = initInstance("bucket.g3db");
+        ModelInstance bucketFilled = initInstance("bucket_filled.g3db");
         Entity entity = new Entity();
         btCollisionObject collisionObject = new btCollisionObject();
         collisionObject.setCollisionShape(new btBoxShape(new Vector3(0.25f, 0.25f, 0.25f)));
         collisionObject.setCollisionFlags(collisionObject.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
-        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG);
+        collisionObject.setContactCallbackFilter(PLAYER_CONTACT_FLAG | WATER_TAP_CONTACT_FLAG);
         Vector3 position = new Vector3(-2.0f, 0.0f, -2.0f);
         entity.add(new PositionComponent(position));
         entity.add(new ModelInstanceComponent(instance).withCollisionObject(collisionObject));
         entity.add(new PickUpableComponent());
+        entity.add(new BucketComponent());
+        entity.add(new CollisionComponent());
+        entity.add(new MultiModelComponent(BUCKET_EMPTY_MODEL, instance).add(BUCKET_FILLED_MODEL, bucketFilled));
         collisionObject.setUserValue(entities.size());
         collisionObject.setWorldTransform(new Matrix4().setTranslation(position));
         collisionWorld.addCollisionObject(collisionObject);

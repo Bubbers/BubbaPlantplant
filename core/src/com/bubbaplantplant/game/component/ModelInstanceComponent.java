@@ -25,4 +25,8 @@ public class ModelInstanceComponent implements Component {
     public btCollisionObject getCollisionObject() {
         return collisionObject;
     }
+
+    public void setModelInstance(ModelInstance modelInstance) {
+        this.modelInstance = modelInstance;
+    }
 }

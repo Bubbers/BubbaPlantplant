@@ -17,6 +17,9 @@ import com.bubbaplantplant.game.component.*;
 
 import java.util.List;
 
+import static com.bubbaplantplant.game.BubbaPlantplantApplication.BUCKET_EMPTY_MODEL;
+import static com.bubbaplantplant.game.BubbaPlantplantApplication.BUCKET_FILLED_MODEL;
+
 public class PickUpOnCollisionSystem extends EntitySystem {
 
     private Camera camera;
@@ -56,7 +59,8 @@ public class PickUpOnCollisionSystem extends EntitySystem {
             callback.dispose();
         } else if (entityHeld != null && Gdx.input.isKeyPressed(Input.Keys.E)) {
             Vector3 positionToMoveTo = playerPosition.getPosition();
-            entityHeld.getComponent(PositionComponent.class).getPosition().set(positionToMoveTo.x, positionToMoveTo.y, positionToMoveTo.z);
+            Vector3 heldPosition = entityHeld.getComponent(PositionComponent.class).getPosition();
+            entityHeld.getComponent(PositionComponent.class).getPosition().set(heldPosition.x, positionToMoveTo.y, heldPosition.z);
             entityHeld = null;
         }
 
